@@ -7,10 +7,12 @@ function AdminPage() {
   const [previews, setPreviews] = useState([])
   const [uploading, setUploading] = useState(false)
   const [stats, setStats] = useState(null)
+  const [results, setResults] = useState([])
 
   useEffect(() => {
     fetchContestants()
     fetchStats()
+    fetchResults()
   }, [])
 
   const fetchContestants = async () => {
@@ -30,6 +32,16 @@ function AdminPage() {
       setStats(data)
     } catch (error) {
       console.error('Error fetching stats:', error)
+    }
+  }
+
+  const fetchResults = async () => {
+    try {
+      const response = await fetch('/api/results')
+      const data = await response.json()
+      setResults(data)
+    } catch (error) {
+      console.error('Error fetching results:', error)
     }
   }
 
@@ -138,6 +150,7 @@ function AdminPage() {
       if (response.ok) {
         fetchContestants()
         fetchStats()
+        fetchResults()
         alert('All votes have been reset!')
       } else {
         alert('Error resetting votes')
@@ -151,6 +164,10 @@ function AdminPage() {
   return (
     <div className="admin-page">
       <div className="admin-container">
+        <header className="admin-header">
+          <h1>🎃 Halloween Costume Contest - Admin</h1>
+        </header>
+
         <section className="upload-section">
           <h2>Add New Contestant</h2>
           <form onSubmit={handleSubmit} className="upload-form">
@@ -205,6 +222,26 @@ function AdminPage() {
             <button onClick={handleResetVotes} className="reset-btn">
               Reset All Votes
             </button>
+          </section>
+        )}
+
+        {results.length > 0 && (
+          <section className="results-section">
+            <h2>🏆 Top 3 Winners</h2>
+            <div className="winners-grid">
+              {results.map((winner, index) => (
+                <div key={winner.id} className={`winner-card rank-${index + 1}`}>
+                  <div className="rank-badge">
+                    {index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'}
+                  </div>
+                  <img src={winner.image_path} alt={winner.name} />
+                  <div className="winner-info">
+                    <h3>{winner.name}</h3>
+                    <p className="vote-count">{winner.votes} votes</p>
+                  </div>
+                </div>
+              ))}
+            </div>
           </section>
         )}
 

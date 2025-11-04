@@ -2,11 +2,24 @@
   flex: 1;
   padding: 2rem;
   overflow-y: auto;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  min-height: 100vh;
 }
 
 .admin-container {
   max-width: 1200px;
   margin: 0 auto;
+}
+
+.admin-header {
+  text-align: center;
+  color: white;
+  margin-bottom: 2rem;
+}
+
+.admin-header h1 {
+  font-size: 2.5rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
 }
 
 section {
@@ -217,6 +230,73 @@ h2 {
   object-fit: cover;
   border-radius: 10px;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+}
+
+.results-section {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  color: white;
+}
+
+.results-section h2 {
+  color: white;
+  text-align: center;
+  font-size: 2rem;
+}
+
+.winners-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-top: 1.5rem;
+}
+
+.winner-card {
+  position: relative;
+  background: rgba(255, 255, 255, 0.95);
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  transition: transform 0.3s;
+}
+
+.winner-card:hover {
+  transform: translateY(-10px);
+}
+
+.winner-card.rank-1 {
+  grid-column: span 1;
+}
+
+.rank-badge {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  font-size: 3rem;
+  z-index: 10;
+  filter: drop-shadow(2px 2px 4px rgba(0, 0, 0, 0.3));
+}
+
+.winner-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+.winner-info {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.winner-info h3 {
+  color: #333;
+  font-size: 1.5rem;
+  margin-bottom: 0.5rem;
+}
+
+.vote-count {
+  color: #667eea;
+  font-weight: bold;
+  font-size: 1.3rem;
 }
 
 @media (max-width: 768px) {
