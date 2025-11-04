@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo } from 'react'
+import React, { useState, useEffect, useMemo, useRef } from 'react'
 import TinderCard from 'react-tinder-card'
 import './VotingPage.css'
 
@@ -8,6 +8,10 @@ function VotingPage() {
   const [lastDirection, setLastDirection] = useState()
   const [loading, setLoading] = useState(true)
   const [votingComplete, setVotingComplete] = useState(false)
+  const childRefs = useMemo(
+    () => Array(contestants.length).fill(0).map(() => React.createRef()),
+    [contestants.length]
+  )
 
   // Generate or retrieve session ID
   const sessionId = useMemo(() => {
@@ -66,6 +70,12 @@ function VotingPage() {
     console.log(name + ' left the screen!')
   }
 
+  const swipe = async (dir) => {
+    if (currentIndex >= 0 && currentIndex < contestants.length) {
+      await childRefs[currentIndex].current.swipe(dir)
+    }
+  }
+
   if (loading) {
     return (
       <div className="voting-page">
@@ -98,6 +108,7 @@ function VotingPage() {
       <div className="card-container">
         {contestants.map((contestant, index) => (
           <TinderCard
+            ref={childRefs[index]}
             key={contestant.id}
             onSwipe={(dir) => swiped(dir, contestant)}
             onCardLeftScreen={() => outOfFrame(contestant.name)}
@@ -127,23 +138,13 @@ function VotingPage() {
       <div className="buttons">
         <button
           className="btn skip"
-          onClick={() => {
-            if (currentIndex >= 0) {
-              const card = contestants[currentIndex]
-              swiped('left', card)
-            }
-          }}
+          onClick={() => swipe('left')}
         >
           Skip
         </button>
         <button
           className="btn vote"
-          onClick={() => {
-            if (currentIndex >= 0) {
-              const card = contestants[currentIndex]
-              swiped('right', card)
-            }
-          }}
+          onClick={() => swipe('right')}
         >
           Vote
         </button>
