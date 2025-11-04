@@ -1,0 +1,17 @@
+{
+  "name": "halloween-contest",
+  "version": "1.0.0",
+  "description": "Halloween costume contest voting system",
+  "scripts": {
+    "install:backend": "cd backend && npm install",
+    "install:frontend": "cd frontend && npm install",
+    "install:all": "npm run install:backend && npm run install:frontend",
+    "build:frontend": "cd frontend && npm run build",
+    "start": "node backend/src/index.js",
+    "dev:backend": "cd backend && npm run dev",
+    "dev:frontend": "cd frontend && npm run dev"
+  },
+  "keywords": ["voting", "contest", "halloween"],
+  "author": "",
+  "license": "ISC"
+}

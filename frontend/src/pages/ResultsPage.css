@@ -1,0 +1,255 @@
+.results-page {
+  flex: 1;
+  padding: 2rem;
+  overflow-y: auto;
+}
+
+.results-container {
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.results-title {
+  text-align: center;
+  color: white;
+  font-size: 3rem;
+  margin-bottom: 3rem;
+  text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+}
+
+.podium {
+  display: flex;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 2rem;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.podium-place {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  animation: slideUp 0.6s ease-out;
+}
+
+.podium-place.first {
+  order: 2;
+}
+
+.podium-place.second {
+  order: 1;
+}
+
+.podium-place.third {
+  order: 3;
+}
+
+@keyframes slideUp {
+  from {
+    opacity: 0;
+    transform: translateY(50px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.medal {
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  animation: bounce 1s ease-in-out infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+.winner-card {
+  background: white;
+  border-radius: 20px;
+  overflow: hidden;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  width: 300px;
+  transition: transform 0.3s;
+}
+
+.podium-place.first .winner-card {
+  width: 350px;
+  box-shadow: 0 15px 50px rgba(255, 215, 0, 0.4);
+}
+
+.winner-card:hover {
+  transform: scale(1.05);
+}
+
+.winner-card img {
+  width: 100%;
+  height: 300px;
+  object-fit: cover;
+}
+
+.podium-place.first .winner-card img {
+  height: 350px;
+}
+
+.winner-info {
+  padding: 1.5rem;
+  text-align: center;
+}
+
+.winner-info h2 {
+  color: #333;
+  font-size: 1.8rem;
+  margin-bottom: 1rem;
+}
+
+.podium-place.first .winner-info h2 {
+  font-size: 2.2rem;
+}
+
+.vote-count {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.votes {
+  font-size: 3rem;
+  font-weight: bold;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.podium-place.first .votes {
+  font-size: 3.5rem;
+}
+
+.votes-label {
+  color: #666;
+  font-size: 1rem;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+}
+
+.rank-number {
+  position: absolute;
+  top: -10px;
+  right: -10px;
+  width: 50px;
+  height: 50px;
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  color: white;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+}
+
+.podium-place.first .rank-number {
+  background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  width: 60px;
+  height: 60px;
+  font-size: 1.8rem;
+}
+
+.refresh-btn {
+  display: block;
+  margin: 0 auto;
+  padding: 1rem 2.5rem;
+  font-size: 1.2rem;
+  background: rgba(255, 255, 255, 0.9);
+  color: #667eea;
+  border: none;
+  border-radius: 50px;
+  cursor: pointer;
+  font-weight: bold;
+  box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  transition: transform 0.2s;
+}
+
+.refresh-btn:hover {
+  transform: translateY(-2px);
+}
+
+.loading,
+.no-results {
+  text-align: center;
+  color: white;
+  font-size: 1.5rem;
+  background: rgba(0, 0, 0, 0.3);
+  padding: 3rem;
+  border-radius: 20px;
+  backdrop-filter: blur(10px);
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+.no-results h2 {
+  color: white;
+  margin-bottom: 1rem;
+  font-size: 2.5rem;
+}
+
+.no-results p {
+  font-size: 1.2rem;
+}
+
+@media (max-width: 1024px) {
+  .podium {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .podium-place.first,
+  .podium-place.second,
+  .podium-place.third {
+    order: initial;
+  }
+
+  .podium-place.first .winner-card {
+    width: 320px;
+  }
+
+  .podium-place.first .winner-card img {
+    height: 320px;
+  }
+
+  .winner-card {
+    width: 280px;
+  }
+
+  .winner-card img {
+    height: 280px;
+  }
+}
+
+@media (max-width: 768px) {
+  .results-title {
+    font-size: 2rem;
+  }
+
+  .medal {
+    font-size: 3rem;
+  }
+
+  .winner-card {
+    width: 250px;
+  }
+
+  .podium-place.first .winner-card {
+    width: 280px;
+  }
+}
