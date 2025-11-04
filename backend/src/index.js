@@ -83,29 +83,42 @@ app.get('/api/contestants/vote', (req, res) => {
   }
 });
 
-// Add new contestant
+// Add new contestant(s) - supports single or multiple files
 app.post('/api/contestants', (req, res) => {
-  upload.single('image')(req, res, (err) => {
+  upload.array('images', 50)(req, res, (err) => {
     if (err) {
       // Handle multer errors
       if (err.code === 'LIMIT_FILE_SIZE') {
-        return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+        return res.status(400).json({ error: 'One or more files too large. Maximum size is 10MB per file.' });
+      }
+      if (err.code === 'LIMIT_FILE_COUNT') {
+        return res.status(400).json({ error: 'Too many files. Maximum is 50 files at once.' });
       }
       return res.status(400).json({ error: err.message });
     }
 
     try {
-      if (!req.file) {
-        return res.status(400).json({ error: 'Image is required' });
+      if (!req.files || req.files.length === 0) {
+        return res.status(400).json({ error: 'At least one image is required' });
       }
 
       const name = req.body.name || 'Contestant';
-      const imagePath = `/uploads/${req.file.filename}`;
+      const contestants = [];
       const stmt = db.prepare('INSERT INTO contestants (name, image_path) VALUES (?, ?)');
-      const result = stmt.run(name, imagePath);
 
-      const contestant = db.prepare('SELECT * FROM contestants WHERE id = ?').get(result.lastInsertRowid);
-      res.status(201).json(contestant);
+      // Insert each file as a separate contestant
+      for (const file of req.files) {
+        const imagePath = `/uploads/${file.filename}`;
+        const result = stmt.run(name, imagePath);
+        const contestant = db.prepare('SELECT * FROM contestants WHERE id = ?').get(result.lastInsertRowid);
+        contestants.push(contestant);
+      }
+
+      res.status(201).json({
+        success: true,
+        count: contestants.length,
+        contestants
+      });
     } catch (error) {
       res.status(500).json({ error: error.message });
     }
@@ -193,6 +206,21 @@ app.delete('/api/contestants/:id', (req, res) => {
     }
 
     res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Reset all votes (admin) - keeps contestants but clears all votes
+app.post('/api/reset-votes', (req, res) => {
+  try {
+    // Delete all votes
+    db.prepare('DELETE FROM votes').run();
+
+    // Reset all contestant vote counts
+    db.prepare('UPDATE contestants SET votes = 0').run();
+
+    res.json({ success: true, message: 'All votes have been reset' });
   } catch (error) {
     res.status(500).json({ error: error.message });
   }

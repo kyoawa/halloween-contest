@@ -3,8 +3,8 @@ import './AdminPage.css'
 
 function AdminPage() {
   const [contestants, setContestants] = useState([])
-  const [image, setImage] = useState(null)
-  const [preview, setPreview] = useState(null)
+  const [images, setImages] = useState([])
+  const [previews, setPreviews] = useState([])
   const [uploading, setUploading] = useState(false)
   const [stats, setStats] = useState(null)
 
@@ -34,22 +34,35 @@ function AdminPage() {
   }
 
   const handleImageChange = (e) => {
-    const file = e.target.files[0]
-    if (file) {
-      setImage(file)
-      const reader = new FileReader()
-      reader.onloadend = () => {
-        setPreview(reader.result)
-      }
-      reader.readAsDataURL(file)
+    const files = Array.from(e.target.files)
+    if (files.length > 0) {
+      setImages(files)
+
+      // Create previews for all selected files
+      const newPreviews = []
+      let loadedCount = 0
+
+      files.forEach((file) => {
+        const reader = new FileReader()
+        reader.onloadend = () => {
+          newPreviews.push(reader.result)
+          loadedCount++
+
+          // Update previews once all files are loaded
+          if (loadedCount === files.length) {
+            setPreviews(newPreviews)
+          }
+        }
+        reader.readAsDataURL(file)
+      })
     }
   }
 
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!image) {
-      alert('Please provide an image')
+    if (images.length === 0) {
+      alert('Please select at least one image')
       return
     }
 
@@ -57,7 +70,11 @@ function AdminPage() {
 
     try {
       const formData = new FormData()
-      formData.append('image', image)
+
+      // Append all images
+      images.forEach((image) => {
+        formData.append('images', image)
+      })
 
       const response = await fetch('/api/contestants', {
         method: 'POST',
@@ -65,18 +82,21 @@ function AdminPage() {
       })
 
       if (response.ok) {
-        setImage(null)
-        setPreview(null)
+        const result = await response.json()
+        setImages([])
+        setPreviews([])
+        // Reset the file input
+        document.getElementById('images').value = ''
         fetchContestants()
         fetchStats()
-        alert('Contestant added successfully!')
+        alert(`${result.count} contestant(s) added successfully!`)
       } else {
         const error = await response.json()
         alert('Error: ' + error.error)
       }
     } catch (error) {
       console.error('Error uploading:', error)
-      alert('Error uploading contestant')
+      alert('Error uploading contestant(s)')
     } finally {
       setUploading(false)
     }
@@ -105,6 +125,29 @@ function AdminPage() {
     }
   }
 
+  const handleResetVotes = async () => {
+    if (!confirm('Are you sure you want to reset ALL votes? This will keep all contestants but clear all voting data.')) {
+      return
+    }
+
+    try {
+      const response = await fetch('/api/reset-votes', {
+        method: 'POST'
+      })
+
+      if (response.ok) {
+        fetchContestants()
+        fetchStats()
+        alert('All votes have been reset!')
+      } else {
+        alert('Error resetting votes')
+      }
+    } catch (error) {
+      console.error('Error resetting votes:', error)
+      alert('Error resetting votes')
+    }
+  }
+
   return (
     <div className="admin-page">
       <div className="admin-container">
@@ -112,24 +155,32 @@ function AdminPage() {
           <h2>Add New Contestant</h2>
           <form onSubmit={handleSubmit} className="upload-form">
             <div className="form-group">
-              <label htmlFor="image">Image:</label>
+              <label htmlFor="images">Images (select one or multiple):</label>
               <input
                 type="file"
-                id="image"
+                id="images"
                 accept="image/*"
                 onChange={handleImageChange}
+                multiple
                 required
               />
+              {images.length > 0 && (
+                <p style={{ color: '#667eea', fontWeight: 'bold', marginTop: '0.5rem' }}>
+                  {images.length} file(s) selected
+                </p>
+              )}
             </div>
 
-            {preview && (
-              <div className="preview">
-                <img src={preview} alt="Preview" />
+            {previews.length > 0 && (
+              <div className="preview-grid">
+                {previews.map((preview, index) => (
+                  <img key={index} src={preview} alt={`Preview ${index + 1}`} />
+                ))}
               </div>
             )}
 
             <button type="submit" disabled={uploading} className="submit-btn">
-              {uploading ? 'Uploading...' : 'Add Contestant'}
+              {uploading ? 'Uploading...' : `Add ${images.length || ''} Contestant${images.length !== 1 ? 's' : ''}`}
             </button>
           </form>
         </section>
@@ -151,6 +202,9 @@ function AdminPage() {
                 <div className="stat-label">Unique Voters</div>
               </div>
             </div>
+            <button onClick={handleResetVotes} className="reset-btn">
+              Reset All Votes
+            </button>
           </section>
         )}
 
