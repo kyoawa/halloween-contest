@@ -3,7 +3,6 @@ import './AdminPage.css'
 
 function AdminPage() {
   const [contestants, setContestants] = useState([])
-  const [name, setName] = useState('')
   const [image, setImage] = useState(null)
   const [preview, setPreview] = useState(null)
   const [uploading, setUploading] = useState(false)
@@ -49,8 +48,8 @@ function AdminPage() {
   const handleSubmit = async (e) => {
     e.preventDefault()
 
-    if (!name || !image) {
-      alert('Please provide a name and image')
+    if (!image) {
+      alert('Please provide an image')
       return
     }
 
@@ -58,7 +57,6 @@ function AdminPage() {
 
     try {
       const formData = new FormData()
-      formData.append('name', name)
       formData.append('image', image)
 
       const response = await fetch('/api/contestants', {
@@ -67,7 +65,6 @@ function AdminPage() {
       })
 
       if (response.ok) {
-        setName('')
         setImage(null)
         setPreview(null)
         fetchContestants()
@@ -114,18 +111,6 @@ function AdminPage() {
         <section className="upload-section">
           <h2>Add New Contestant</h2>
           <form onSubmit={handleSubmit} className="upload-form">
-            <div className="form-group">
-              <label htmlFor="name">Name:</label>
-              <input
-                type="text"
-                id="name"
-                value={name}
-                onChange={(e) => setName(e.target.value)}
-                placeholder="Enter contestant name"
-                required
-              />
-            </div>
-
             <div className="form-group">
               <label htmlFor="image">Image:</label>
               <input

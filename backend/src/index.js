@@ -86,11 +86,11 @@ app.get('/api/contestants/vote', (req, res) => {
 // Add new contestant
 app.post('/api/contestants', upload.single('image'), (req, res) => {
   try {
-    const { name } = req.body;
-    if (!name || !req.file) {
-      return res.status(400).json({ error: 'Name and image are required' });
+    if (!req.file) {
+      return res.status(400).json({ error: 'Image is required' });
     }
 
+    const name = req.body.name || 'Contestant';
     const imagePath = `/uploads/${req.file.filename}`;
     const stmt = db.prepare('INSERT INTO contestants (name, image_path) VALUES (?, ?)');
     const result = stmt.run(name, imagePath);
