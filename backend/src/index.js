@@ -84,22 +84,32 @@ app.get('/api/contestants/vote', (req, res) => {
 });
 
 // Add new contestant
-app.post('/api/contestants', upload.single('image'), (req, res) => {
-  try {
-    if (!req.file) {
-      return res.status(400).json({ error: 'Image is required' });
+app.post('/api/contestants', (req, res) => {
+  upload.single('image')(req, res, (err) => {
+    if (err) {
+      // Handle multer errors
+      if (err.code === 'LIMIT_FILE_SIZE') {
+        return res.status(400).json({ error: 'File too large. Maximum size is 10MB.' });
+      }
+      return res.status(400).json({ error: err.message });
     }
 
-    const name = req.body.name || 'Contestant';
-    const imagePath = `/uploads/${req.file.filename}`;
-    const stmt = db.prepare('INSERT INTO contestants (name, image_path) VALUES (?, ?)');
-    const result = stmt.run(name, imagePath);
+    try {
+      if (!req.file) {
+        return res.status(400).json({ error: 'Image is required' });
+      }
 
-    const contestant = db.prepare('SELECT * FROM contestants WHERE id = ?').get(result.lastInsertRowid);
-    res.status(201).json(contestant);
-  } catch (error) {
-    res.status(500).json({ error: error.message });
-  }
+      const name = req.body.name || 'Contestant';
+      const imagePath = `/uploads/${req.file.filename}`;
+      const stmt = db.prepare('INSERT INTO contestants (name, image_path) VALUES (?, ?)');
+      const result = stmt.run(name, imagePath);
+
+      const contestant = db.prepare('SELECT * FROM contestants WHERE id = ?').get(result.lastInsertRowid);
+      res.status(201).json(contestant);
+    } catch (error) {
+      res.status(500).json({ error: error.message });
+    }
+  });
 });
 
 // Vote for a contestant (swipe right)
