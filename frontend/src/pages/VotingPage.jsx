@@ -46,6 +46,21 @@ function VotingPage() {
     setLastDirection(direction)
     setCurrentIndex(currentIndex - 1)
 
+    // Always record that this contestant was viewed
+    try {
+      await fetch('/api/view', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contestant_id: contestant.id,
+          session: sessionId
+        })
+      })
+    } catch (error) {
+      console.error('Error recording view:', error)
+    }
+
+    // If swiped right, also record the vote
     if (direction === 'right') {
       try {
         await fetch('/api/vote', {
@@ -62,7 +77,18 @@ function VotingPage() {
     }
 
     if (currentIndex === 0) {
-      setVotingComplete(true)
+      // Check if there are new contestants before showing complete message
+      setTimeout(async () => {
+        const response = await fetch(`/api/contestants/vote?session=${sessionId}`)
+        const data = await response.json()
+        if (data.length > 0) {
+          setContestants(data)
+          setCurrentIndex(data.length - 1)
+          setVotingComplete(false)
+        } else {
+          setVotingComplete(true)
+        }
+      }, 500)
     }
   }
 

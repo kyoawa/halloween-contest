@@ -61,7 +61,7 @@ app.get('/api/contestants', (req, res) => {
   }
 });
 
-// Get contestants for voting (exclude already voted)
+// Get contestants for voting (exclude already viewed)
 app.get('/api/contestants/vote', (req, res) => {
   try {
     const session = req.query.session;
@@ -72,7 +72,7 @@ app.get('/api/contestants/vote', (req, res) => {
     const contestants = db.prepare(`
       SELECT c.* FROM contestants c
       WHERE c.id NOT IN (
-        SELECT contestant_id FROM votes WHERE voter_session = ?
+        SELECT contestant_id FROM views WHERE voter_session = ?
       )
       ORDER BY RANDOM()
     `).all(session);
@@ -123,6 +123,25 @@ app.post('/api/contestants', (req, res) => {
       res.status(500).json({ error: error.message });
     }
   });
+});
+
+// Record that a contestant was viewed (swiped in any direction)
+app.post('/api/view', (req, res) => {
+  try {
+    const { contestant_id, session } = req.body;
+
+    if (!contestant_id || !session) {
+      return res.status(400).json({ error: 'Contestant ID and session are required' });
+    }
+
+    // Record the view (so they don't see this contestant again)
+    const viewStmt = db.prepare('INSERT OR IGNORE INTO views (contestant_id, voter_session) VALUES (?, ?)');
+    viewStmt.run(contestant_id, session);
+
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
 });
 
 // Vote for a contestant (swipe right)
@@ -211,11 +230,12 @@ app.delete('/api/contestants/:id', (req, res) => {
   }
 });
 
-// Reset all votes (admin) - keeps contestants but clears all votes
+// Reset all votes (admin) - keeps contestants but clears all votes and views
 app.post('/api/reset-votes', (req, res) => {
   try {
-    // Delete all votes
+    // Delete all votes and views
     db.prepare('DELETE FROM votes').run();
+    db.prepare('DELETE FROM views').run();
 
     // Reset all contestant vote counts
     db.prepare('UPDATE contestants SET votes = 0').run();

@@ -33,7 +33,17 @@ db.exec(`
     UNIQUE(contestant_id, voter_session)
   );
 
+  CREATE TABLE IF NOT EXISTS views (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    contestant_id INTEGER NOT NULL,
+    voter_session TEXT NOT NULL,
+    viewed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (contestant_id) REFERENCES contestants(id),
+    UNIQUE(contestant_id, voter_session)
+  );
+
   CREATE INDEX IF NOT EXISTS idx_votes_session ON votes(voter_session);
+  CREATE INDEX IF NOT EXISTS idx_views_session ON views(voter_session);
   CREATE INDEX IF NOT EXISTS idx_contestants_votes ON contestants(votes DESC);
 `);
 
