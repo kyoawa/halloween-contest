@@ -102,12 +102,20 @@ function VotingPage() {
             onSwipe={(dir) => swiped(dir, contestant)}
             onCardLeftScreen={() => outOfFrame(contestant.name)}
             preventSwipe={['up', 'down']}
+            swipeRequirementType="position"
+            swipeThreshold={100}
             className="swipe"
           >
-            <div
-              className="card"
-              style={{ backgroundImage: `url(${contestant.image_path})` }}
-            >
+            <div className="card">
+              <img
+                src={contestant.image_path}
+                alt={contestant.name}
+                className="card-image"
+                onError={(e) => {
+                  console.error('Failed to load image:', contestant.image_path)
+                  e.target.src = 'data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" width="400" height="500"><rect width="400" height="500" fill="%23ddd"/><text x="50%" y="50%" text-anchor="middle" fill="%23999">Image not found</text></svg>'
+                }}
+              />
               <div className="card-content">
                 <h3>{contestant.name}</h3>
               </div>
