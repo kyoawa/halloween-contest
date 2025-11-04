@@ -1,11 +1,18 @@
 import Database from 'better-sqlite3';
 import { fileURLToPath } from 'url';
 import { dirname, join } from 'path';
+import { existsSync, mkdirSync } from 'fs';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const db = new Database(join(__dirname, '../data/contest.db'));
+// Ensure data directory exists
+const dataDir = join(__dirname, '../data');
+if (!existsSync(dataDir)) {
+  mkdirSync(dataDir, { recursive: true });
+}
+
+const db = new Database(join(dataDir, 'contest.db'));
 
 // Initialize database schema
 db.exec(`
